@@ -4,6 +4,9 @@ from django.template.context import RequestContext
 from django.core.cache import cache
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
+
+#from django.utils import simplejson
+# See: https://docs.djangoproject.com/en/dev/releases/1.5/#system-version-of-simplejson-no-longer-used
 import json
 
 from aggregate.client import get_client
@@ -23,23 +26,23 @@ def stats_by_view(request):
     grouped = {}
     for r in stats:
         if r['view'] not in grouped:
-            grouped[r['view']] = {'queries' : [], 
+            grouped[r['view']] = {'queries' : [],
                                   'count' : 0,
                                   'time' : 0,
                                   'average_time' : 0}
         grouped[r['view']]['queries'].append(r)
         grouped[r['view']]['count'] += r['count']
         grouped[r['view']]['time'] += r['time']
-        r['average_time'] = r['time'] / r['count'] 
+        r['average_time'] = r['time'] / r['count']
         grouped[r['view']]['average_time'] += r['average_time']
-        
+
     maxtime = 0
     for r in stats:
         if r['average_time'] > maxtime:
             maxtime = r['average_time']
     for r in stats:
         r['normtime'] = (0.0+r['average_time'])/maxtime
-           
+
     return render_to_response('profiler/by_view.html',
                               {'queries' : grouped,
                                'stats' :json.dumps(stats)},
