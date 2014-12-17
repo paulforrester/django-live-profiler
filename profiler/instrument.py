@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.db.models.sql.compiler import SQLCompiler
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.constants import MULTI
 from django.utils.module_loading import import_string
