@@ -17,8 +17,10 @@ class ProfilerMiddleware(object):
     def process_view(self, request, view_func, view_args, view_kwargs):
         if inspect.ismethod(view_func):
             view_name = view_func.im_class.__module__+ '.' + view_func.im_class.__name__ + view_func.__name__
-        else:
+        elif inspect.isfunction(view_func):
             view_name = view_func.__module__ + '.' + view_func.__name__
+        else:
+            view_name = view_func.__module__ + '.' + view_func.__class__.__name__
         
         _set_current_view(view_name)
 

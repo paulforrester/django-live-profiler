@@ -3,7 +3,11 @@ from datetime import datetime
 from django.db.models.sql.compiler import SQLCompiler
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.constants import MULTI
-from django.db import connection
+from django.utils.module_loading import import_string
+from django.conf import settings
+
+DEFAULT_SQL_COMPILERS = ['django.db.models.sql.compiler.SQLCompiler',]
+SQL_COMPILERS = settings.get('LIVE_PROFILE_SQL_COMPILERS', DEFAULT_SQL_COMPILERS)
 
 from aggregate.client import get_client
 
@@ -32,9 +36,9 @@ def execute_sql(self, *args, **kwargs):
 
 INSTRUMENTED = False
 
-
-
 if not INSTRUMENTED:
-    SQLCompiler.__execute_sql = SQLCompiler.execute_sql
-    SQLCompiler.execute_sql = execute_sql
+    for compiler_class_name in SQL_COMPILERS:
+        compiler_class = import_string(compiler_class_name)
+        compiler_class.__execute_sql = compiler_class.execute_sql
+        compiler_class.execute_sql = execute_sql
     INSTRUMENTED = True
