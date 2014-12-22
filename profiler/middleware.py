@@ -20,8 +20,12 @@ class ProfilerMiddleware(object):
         elif inspect.isfunction(view_func):
             view_name = view_func.__module__ + '.' + view_func.__name__
         else:
-            view_name = view_func.__module__ + '.' + view_func.__class__.__name__
-        
+            if getattr(view_func, 'handler', None):
+                self.process_view(request, view_func.handler, view_args, view_kwargs)
+                return
+            else:
+                view_name = view_func.__module__ + '.' + view_func.__class__.__name__
+
         _set_current_view(view_name)
 
     
